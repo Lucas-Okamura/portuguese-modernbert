@@ -14,6 +14,7 @@ from stableadamw import StableAdamW
 import torch
 from datetime import datetime
 import logging
+from itertools import islice
 
 
 def parse_args():
@@ -24,7 +25,9 @@ def parse_args():
     parser.add_argument("--model_name", type=str, default="answerdotai/ModernBERT-base")
     parser.add_argument("--tokenizer_name", type=str, default="neuralmind/bert-base-portuguese-cased")
     parser.add_argument("--dataset_name", type=str, default="Itau-Unibanco/aroeira")
-    parser.add_argument("--max_steps", type=int, default=100000)
+    parser.add_argument("--train_part", type=str, default="pt1")
+    parser.add_argument("--rope_theta", type=float, default=10_000.0)
+    parser.add_argument("--max_steps", type=int, default=100_000)
     parser.add_argument("--warmup_steps", type=int, default=2000)
     parser.add_argument("--max_length", type=int, default=2048)
     parser.add_argument("--batch_size", type=int, default=1)
@@ -64,21 +67,6 @@ def get_trapezoidal_lr(step, warmup_steps, max_steps, base_lr):
         decay_ratio = (step - max_steps * 0.9) / (max_steps * 0.1)
         return base_lr * (1 - decay_ratio ** 0.5)
 
-
-def get_current_max_length(step):
-    if step < 30_000_000:
-        return 1024
-    else:
-        return 2048
-
-
-def get_current_rope_theta(step):
-    if step < 30_000_000:
-        return 10_000.0
-    else:
-        return 160_000.0
-
-
 def get_latest_checkpoint(checkpoint_dir):
     checkpoints = [ckpt for ckpt in os.listdir(checkpoint_dir) if ckpt.startswith("ckpt-")]
     if not checkpoints:
@@ -94,14 +82,16 @@ def main():
     setup_logging(args.log_dir)
 
     start_time = time.time()
-    accelerator = Accelerator(mixed_precision=None)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    logging.info(f"Using device: {device}")
+
+    accelerator = Accelerator(mixed_precision="fp16")
 
     logging.info(f"Loading Tokenizer {args.tokenizer_name}")
     tokenizer = AutoTokenizer.from_pretrained(
         args.tokenizer_name,
         model_max_length=args.max_length
     )
-    tokenizer.add_special_tokens({'pad_token': '[PAD]'})
 
     resume_path, start_step = None, 0
     if args.resume_from:
@@ -109,39 +99,53 @@ def main():
         start_step = int(resume_path.strip('/').split('-')[-1])
     else:
         resume_path, start_step = get_latest_checkpoint(args.checkpoint_dir)
+    
+    if resume_path:
+        logging.info(f"Loading Config from {resume_path} with rope_theta={args.rope_theta}")
+        cfg = AutoConfig.from_pretrained(resume_path)
+    else:
+        logging.info(f"Loading Config from {args.model_name} with rope_theta={args.rope_theta}")
+        cfg = AutoConfig.from_pretrained(args.model_name)
+        cfg.vocab_size = len(tokenizer)
 
-    rope_theta = get_current_rope_theta(start_step)
-
-    logging.info(f"Loading Config from {args.model_name} with rope_theta={rope_theta}")
-    cfg = AutoConfig.from_pretrained(args.model_name)
-    cfg.rope_theta = rope_theta
+    cfg.rope_theta = args.rope_theta
     cfg.hidden_act = "gelu_new"
 
     if resume_path:
         logging.info(f"Resuming from checkpoint: {resume_path} (step {start_step})")
         model = AutoModelForMaskedLM.from_pretrained(resume_path, config=cfg)
-        tokenizer = AutoTokenizer.from_pretrained(resume_path)
     else:
         logging.info(f"Starting training from scratch of model {args.model_name}.")
         model = AutoModelForMaskedLM.from_pretrained(args.model_name, config=cfg)
+    
+    # Atribui dinamicamente no config do modelo
+    model.config.pad_token_id  = tokenizer.pad_token_id
+    model.config.cls_token_id  = tokenizer.cls_token_id
+    model.config.sep_token_id  = tokenizer.sep_token_id
+    model.config.mask_token_id = tokenizer.mask_token_id
 
+    # if model.get_input_embeddings().num_embeddings != len(tokenizer):
     model.resize_token_embeddings(len(tokenizer))
 
     full_dataset = load_dataset(args.dataset_name, split="train", streaming=True)
+    if args.train_part == "pt1":
+        sliced_dataset = islice(full_dataset, 0, 30_000_000)
+    else:
+        sliced_dataset = islice(full_dataset, 30_000_000, None)
+
 
     def skip_n(dataset, n):
         for idx, item in enumerate(dataset):
             if idx >= n:
                 yield item
 
-    skipped_dataset = skip_n(full_dataset, start_step * args.batch_size)
+    skipped_dataset = skip_n(sliced_dataset, start_step * args.batch_size)
 
     def tokenize_function(example, step):
-        current_len = get_current_max_length(step)
         return tokenizer(
             example["text"],
             truncation=True,
-            max_length=current_len,
+            max_length=args.max_length,
             padding="max_length"
         )
 
@@ -188,6 +192,10 @@ def main():
     optimizer.zero_grad()
 
     for step, batch in enumerate(dataloader, start=start_step):
+        print(step)
+        print(accelerator.is_main_process)
+        print(step % args.save_every)
+        print()
         lr = get_trapezoidal_lr(step, args.warmup_steps, args.max_steps, args.lr)
         for group in optimizer.param_groups:
             group["lr"] = lr
@@ -200,10 +208,10 @@ def main():
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
             optimizer.zero_grad()
-            if torch.backends.mps.is_available():
-                torch.mps.empty_cache()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
-        if step % args.log_every == 0:
+        if step % args.log_every == 0 and accelerator.is_main_process:
             elapsed = int(time.time() - start_time)
             hours, remainder = divmod(elapsed, 3600)
             minutes, seconds = divmod(remainder, 60)
@@ -211,7 +219,7 @@ def main():
             log_line = f"Step {step} - Loss: {loss.item():.4f} - LR: {lr:.2e} - Time: {time_str}"
             logging.info(log_line)
 
-        if step % args.save_every == 0 and step != 0:
+        if step % args.save_every == 0 and step != 0 and accelerator.is_main_process:
             model_to_save = accelerator.unwrap_model(model)
             save_path = f"{args.checkpoint_dir}/ckpt-{step}"
             model_to_save.save_pretrained(save_path)
@@ -221,11 +229,14 @@ def main():
 
         if step >= args.max_steps:
             break
-
-    final_model = accelerator.unwrap_model(model)
-    final_model.save_pretrained(args.output_dir)
-    tokenizer.save_pretrained(args.output_dir)
-    logging.info("Training complete.")
+        
+    if accelerator.is_main_process:
+        final_model = accelerator.unwrap_model(model)
+        final_model.save_pretrained(args.output_dir)
+        tokenizer.save_pretrained(args.output_dir)
+        logging.info("Training complete.")
+    
+    accelerator.wait_for_everyone()
 
 
 if __name__ == "__main__":
