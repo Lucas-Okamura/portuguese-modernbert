@@ -15,16 +15,20 @@ def parse_args():
     )
     parser.add_argument(
         "--tokenizer_name", type=str,
-        default="neuralmind/bert-base-portuguese-cased"
+        default="ricardoz/BERTugues-base-portuguese-cased"
     )
     parser.add_argument(
         "--dataset_name", type=str,
         default="Itau-Unibanco/aroeira"
     )
+    parser.add_argument("--optimizer", type=str, default="stableadamw")
     parser.add_argument("--train_part", type=str, default="pt1")
     parser.add_argument("--rope_theta", type=float, default=10_000.0)
-    parser.add_argument("--max_steps", type=int, default=100_000)
-    parser.add_argument("--warmup_steps", type=int, default=2000)
+    parser.add_argument("--warmup_pct", type=float, default=0.2)
+    parser.add_argument("--decay_pct", type=float, default=0.1)
+    parser.add_argument("--min_lr", type=float, default=1e-6)
+    parser.add_argument("--epochs", type=int, default=1)
+    parser.add_argument("--total_samples", type=int, default=1_000_000)
     parser.add_argument("--max_length", type=int, default=2048)
     parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--mlm_probability", type=float, default=0.3)

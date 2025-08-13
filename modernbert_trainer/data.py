@@ -11,12 +11,6 @@ class TokenizedIterableDataset(IterableDataset):
         return iter(self.data_iter)
 
 
-def skip_n(stream, n):
-    for i, x in enumerate(stream):
-        if i >= n:
-            yield x
-
-
 def stream_tokenizer(tokenizer, data_stream, start_step, max_length):
     for i, ex in enumerate(data_stream):
         yield tokenizer(
@@ -34,13 +28,13 @@ def get_dataloader(
         args.dataset_name, split='train', streaming=True
     )
     part = [0, 30_000_000] if args.train_part == 'pt1' else [30_000_000, None]
+    total_samples = part[1]
 
     logging.info(f"Getting data from {part[0]}th sentence to {part[1]}th")
 
     sliced = islice(ds, part[0], part[1])
-    skipped = skip_n(sliced, start_step * args.batch_size)
     tokenized = stream_tokenizer(
-        tokenizer, skipped, start_step, args.max_length
+        tokenizer, sliced, start_step, args.max_length
     )
     iterable = TokenizedIterableDataset(tokenized)
     collator = DataCollatorForLanguageModeling(
@@ -48,8 +42,11 @@ def get_dataloader(
         mlm=True,
         mlm_probability=args.mlm_probability
     )
-    return DataLoader(
+    return (
+        DataLoader(
         iterable,
         batch_size=args.batch_size,
         collate_fn=collator
+        ),
+        total_samples
     )

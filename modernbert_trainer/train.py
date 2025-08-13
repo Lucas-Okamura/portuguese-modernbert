@@ -12,6 +12,8 @@ def main():
     args = parse_args()
     os.makedirs(args.checkpoint_dir, exist_ok=True)
     setup_logging(args.log_dir)
+    for arg in vars(args):
+        logging.info(f"Training with args: {arg}: {getattr(args, arg)}")
 
     resume_path, start_step = get_latest_checkpoint(
         args.checkpoint_dir
@@ -25,12 +27,12 @@ def main():
     )
 
     logging.info("Initializing Data Loader")
-    dataloader = get_dataloader(
+    dataloader, total_samples = get_dataloader(
         args, tokenizer, start_step
     )
 
     logging.info(f"Starting training from step {start_step}")
-    train(args, model, tokenizer, dataloader, start_step)
+    train(args, model, tokenizer, dataloader, start_step, total_samples)
 
 
 if __name__ == "__main__":

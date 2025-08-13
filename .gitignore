@@ -3,3 +3,5 @@ __pycache__
 .hf_token
 core.*
 logs/
+checkpoints/
+modernbert-pt/
