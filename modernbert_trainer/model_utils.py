@@ -11,7 +11,6 @@ def load_config(args, resume_path=None):
         logging.info(f"Loading Config from {args.model_name} with rope_theta={args.rope_theta}")
         cfg = AutoConfig.from_pretrained(args.model_name)
     cfg.rope_theta = args.rope_theta
-    cfg.hidden_act = 'gelu_new'
     return cfg
 
 

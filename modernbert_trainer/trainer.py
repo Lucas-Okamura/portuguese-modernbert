@@ -118,8 +118,8 @@ def train(
             save_checkpoint(
                 accelerator.unwrap_model(model),
                 tokenizer,
-                args.output_dir,
-                f'final-epoch-{epoch}'
+                args.checkpoint_dir,
+                step
             )
             logging.info(f"Training complete for epoch {epoch}.")
     

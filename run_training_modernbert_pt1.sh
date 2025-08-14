@@ -1,7 +1,6 @@
 #!/bin/bash
 
 accelerate launch --multi_gpu modernbert_trainer/train.py \
-  --output_dir modernbert-pt \
   --optimizer stableadamw \
   --train_part pt1 \
   --checkpoint_dir checkpoints \

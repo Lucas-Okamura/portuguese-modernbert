@@ -40,7 +40,9 @@ def get_dataloader(
     collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer,
         mlm=True,
-        mlm_probability=args.mlm_probability
+        mlm_probability=args.mlm_probability,
+        mask_replace_prob=args.mask_replace_prob,
+        random_replace_prob=args.random_replace_prob
     )
     return (
         DataLoader(
