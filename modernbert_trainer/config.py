@@ -25,6 +25,7 @@ def parse_args():
     parser.add_argument("--train_part", type=str, default="pt1")
     parser.add_argument("--rope_theta", type=float, default=10_000.0)
     parser.add_argument("--warmup_pct", type=float, default=0.2)
+    parser.add_argument("--decay_type", type=str, default="trapezoidal")
     parser.add_argument("--decay_pct", type=float, default=0.1)
     parser.add_argument("--min_lr", type=float, default=1e-6)
     parser.add_argument("--epochs", type=int, default=1)

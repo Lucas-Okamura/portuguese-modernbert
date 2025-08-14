@@ -4,7 +4,7 @@ import time
 import torch
 import logging
 from accelerate import Accelerator
-from lr_scheduler import get_trapezoidal_lr
+from lr_scheduler import get_trapezoidal_lr, get_cosine_lr
 from checkpoint_utils import save_checkpoint
 from stableadamw import StableAdamW
 from torch.optim import AdamW
@@ -29,7 +29,7 @@ def train(
             decouple_lr=False,
             return_norms=True
         )
-    else:
+    elif args.optimizer == "adamw":
         optimizer = AdamW(
             model.parameters(),
             lr=args.lr,
@@ -64,14 +64,24 @@ def train(
 
     for epoch in range(1, args.epochs + 1):
         for step, batch in enumerate(dataloader, start=start_step):
-            lr = get_trapezoidal_lr(
-                step,
-                total_steps,
-                args.lr,
-                args.warmup_pct,
-                args.decay_pct,
-                args.min_lr
-            )
+            if args.decay_type == "trapezoidal":
+                lr = get_trapezoidal_lr(
+                    step,
+                    total_steps,
+                    args.lr,
+                    args.warmup_pct,
+                    args.decay_pct,
+                    args.min_lr
+                )
+            elif args.decay_type == "cosine":
+                lr = get_cosine_lr(
+                    step,
+                    total_steps,
+                    args.lr,
+                    args.warmup_pct,
+                    args.decay_pct,
+                    args.min_lr
+                )
             for g in optimizer.param_groups:
                 g['lr'] = lr
             outputs = model(**batch)
