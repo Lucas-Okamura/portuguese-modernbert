@@ -17,7 +17,7 @@ def train(
     start_step,
     total_samples=None
 ):
-    accelerator = Accelerator(mixed_precision='fp16')
+    accelerator = Accelerator(mixed_precision='bf16')
 
     if args.optimizer == "stableadamw":
         optimizer = StableAdamW(
@@ -61,12 +61,25 @@ def train(
     logging.info(f"Steps in dataset: {steps_per_epoch}")
     logging.info(f"Epochs: {args.epochs}")
     logging.info(f"Total Steps: {total_steps}")
+    if start_step > 0:
+        logging.info(f"Resuming from global step {start_step}")
+
+    # Cálculo de retomada
+    start_epoch = (start_step // steps_per_epoch) + 1  # épocas 1-indexed
+    resume_in_epoch = start_step % steps_per_epoch     # quantos passos já feitos na época start_epoch
+    remaining_steps = max(total_steps - start_step, 0)
 
     for epoch in range(1, args.epochs + 1):
-        for step, batch in enumerate(dataloader, start=start_step):
+        for step_in_epoch, batch in enumerate(dataloader):
+            if epoch == start_epoch and step_in_epoch < resume_in_epoch:
+                continue
+
+            # Passo global 0-indexed
+            global_step = (epoch - 1) * steps_per_epoch + step_in_epoch
+
             if args.decay_type == "trapezoidal":
                 lr = get_trapezoidal_lr(
-                    step,
+                    global_step,
                     total_steps,
                     args.lr,
                     args.warmup_pct,
@@ -75,51 +88,56 @@ def train(
                 )
             elif args.decay_type == "cosine":
                 lr = get_cosine_lr(
-                    step,
+                    global_step,
                     total_steps,
                     args.lr,
                     args.warmup_pct,
                     args.decay_pct,
                     args.min_lr
                 )
+
             for g in optimizer.param_groups:
                 g['lr'] = lr
+
             outputs = model(**batch)
-            loss = outputs.loss / args.grad_accum
-            accelerator.backward(loss)
-            if (step + 1) % args.grad_accum == 0:
+            loss = outputs.loss
+            loss_grad = loss / args.grad_accum
+            accelerator.backward(loss_grad)
+
+            if (global_step + 1) % args.grad_accum == 0:
                 torch.nn.utils.clip_grad_norm_(
                     model.parameters(), max_norm=1.0
                 )
                 optimizer.step()
                 optimizer.zero_grad()
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
+                # if torch.cuda.is_available():
+                #     torch.cuda.empty_cache()
             
-            if (step + 1) % args.log_every == 0 and accelerator.is_main_process:
+            if ((global_step + 1) % args.log_every == 0) and accelerator.is_main_process:
                 elapsed = int(time.time() - start_time)
                 hrs, rem = divmod(elapsed, 3600)
                 mins, secs = divmod(rem, 60)
-                train_percentage = np.round(100 * step / total_steps, 2)
+                train_percentage = np.round(100 * global_step / total_steps, 2)
                 logging.info(
-                    f"Epoch {epoch} - Step {step + 1}/{total_steps} ({train_percentage} %) - Loss: {loss:.5f} - LR: {lr:.2e}"
+                    f"Epoch {epoch} - Step {global_step + 1}/{total_steps} ({train_percentage} %) - Loss: {loss_grad:.5f} - LR: {lr:.2e}"
                     f" - Time: {hrs}h {mins}m {secs}s"
                 )
 
-            if (step + 1) % args.save_every == 0 and step != 0 and accelerator.is_main_process:
+            if ((global_step + 1) % args.save_every == 0) and global_step != 0 and accelerator.is_main_process:
                 save_checkpoint(
                     accelerator.unwrap_model(model),
                     tokenizer,
                     args.checkpoint_dir,
-                    step
+                    global_step
                 )
 
         if accelerator.is_main_process:
+            end_of_epoch_step = min((epoch * steps_per_epoch), total_steps)
             save_checkpoint(
                 accelerator.unwrap_model(model),
                 tokenizer,
                 args.checkpoint_dir,
-                step
+                end_of_epoch_step
             )
             logging.info(f"Training complete for epoch {epoch}.")
     

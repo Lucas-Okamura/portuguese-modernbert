@@ -2,6 +2,6 @@
 __pycache__
 .hf_token
 core.*
-logs/
 checkpoints/
+checkpoints_v2/
 modernbert-pt/

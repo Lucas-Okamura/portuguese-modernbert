@@ -1,6 +1,4 @@
-datasets==4.0.0
+datasets
 torch-optimi
-accelerate==1.9.0
-transformers==4.53.3
-xformers==0.0.28.post3
-flash_attn
+accelerate
+transformers
