@@ -3,5 +3,7 @@ __pycache__
 .hf_token
 core.*
 checkpoints/
+checkpoints_best/
 checkpoints_v2/
+checkpoints_v2_best/
 modernbert-pt/

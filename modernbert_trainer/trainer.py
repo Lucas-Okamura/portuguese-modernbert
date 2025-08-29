@@ -136,7 +136,7 @@ def train(
                         save_checkpoint(
                             accelerator.unwrap_model(model),
                             tokenizer,
-                            args.checkpoint_dir,
+                            f"{args.checkpoint_dir}_best",
                             "best"  # sufixo/identificador especial
                         )
                         logging.info(
