@@ -1,0 +1,86 @@
+2025-08-29 09:32:28 - INFO - Training with args: checkpoint_dir: checkpoints_v2
+2025-08-29 09:32:28 - INFO - Training with args: resume_from: None
+2025-08-29 09:32:28 - INFO - Training with args: model_name: answerdotai/ModernBERT-base
+2025-08-29 09:32:28 - INFO - Training with args: tokenizer_name: ricardoz/BERTugues-base-portuguese-cased
+2025-08-29 09:32:28 - INFO - Training with args: dataset_name: Itau-Unibanco/aroeira
+2025-08-29 09:32:28 - INFO - Training with args: optimizer: adamw
+2025-08-29 09:32:28 - INFO - Training with args: train_part: pt1
+2025-08-29 09:32:28 - INFO - Training with args: rope_theta: 10000.0
+2025-08-29 09:32:28 - INFO - Training with args: warmup_pct: 0.05
+2025-08-29 09:32:28 - INFO - Training with args: decay_type: cosine
+2025-08-29 09:32:28 - INFO - Training with args: decay_pct: 0.9
+2025-08-29 09:32:28 - INFO - Training with args: min_lr: 1e-08
+2025-08-29 09:32:28 - INFO - Training with args: epochs: 2
+2025-08-29 09:32:28 - INFO - Training with args: total_samples: 34841241
+2025-08-29 09:32:28 - INFO - Training with args: max_length: 1024
+2025-08-29 09:32:28 - INFO - Training with args: batch_size: 16
+2025-08-29 09:32:28 - INFO - Training with args: mlm_probability: 0.15
+2025-08-29 09:32:28 - INFO - Training with args: mask_replace_prob: 1.0
+2025-08-29 09:32:28 - INFO - Training with args: random_replace_prob: 0.0
+2025-08-29 09:32:28 - INFO - Training with args: grad_accum: 72
+2025-08-29 09:32:28 - INFO - Training with args: lr: 0.0008
+2025-08-29 09:32:28 - INFO - Training with args: save_every: 100000
+2025-08-29 09:32:28 - INFO - Training with args: log_every: 200
+2025-08-29 09:32:28 - INFO - Training with args: log_dir: logs
+2025-08-29 09:32:28 - INFO - Loading Config from checkpoints_v2/ckpt-468750 with rope_theta=10000.0
+2025-08-29 09:32:28 - INFO - Resuming from checkpoint: checkpoints_v2/ckpt-468750
+2025-08-29 09:32:30 - INFO - Initializing Data Loader
+2025-08-29 09:32:32 - INFO - Getting data from 0th sentence to 30000000th
+2025-08-29 09:32:32 - INFO - Starting training from step 468750
+2025-08-29 09:32:33 - INFO - Initializing model with Accelerator
+2025-08-29 09:32:33 - INFO - Initializing training
+2025-08-29 09:32:33 - INFO - Dataset samples for training: 30000000
+2025-08-29 09:32:33 - INFO - No. GPUs: 4
+2025-08-29 09:32:33 - INFO - Batch Size per GPU: 16
+2025-08-29 09:32:33 - INFO - Steps in dataset: 468750
+2025-08-29 09:32:33 - INFO - Epochs: 2
+2025-08-29 09:32:33 - INFO - Total Steps: 937500
+2025-08-29 09:32:33 - INFO - Resuming from global step 468750
+2025-08-29 09:33:03 - INFO - Epoch 2 - Step 468800/937500 (50.01 %) - Loss: 0.01189 - LR: 4.40e-04 - Time: 0h 0m 29s
+2025-08-29 09:34:45 - INFO - Epoch 2 - Step 469000/937500 (50.03 %) - Loss: 0.01319 - LR: 4.40e-04 - Time: 0h 2m 11s
+2025-08-29 09:36:26 - INFO - Epoch 2 - Step 469200/937500 (50.05 %) - Loss: 0.01236 - LR: 4.39e-04 - Time: 0h 3m 52s
+2025-08-29 09:38:08 - INFO - Epoch 2 - Step 469400/937500 (50.07 %) - Loss: 0.01398 - LR: 4.39e-04 - Time: 0h 5m 34s
+2025-08-29 09:39:52 - INFO - Epoch 2 - Step 469600/937500 (50.09 %) - Loss: 0.01314 - LR: 4.39e-04 - Time: 0h 7m 18s
+2025-08-29 09:41:37 - INFO - Epoch 2 - Step 469800/937500 (50.11 %) - Loss: 0.00852 - LR: 4.39e-04 - Time: 0h 9m 3s
+2025-08-29 09:43:20 - INFO - Epoch 2 - Step 470000/937500 (50.13 %) - Loss: 0.01347 - LR: 4.38e-04 - Time: 0h 10m 46s
+2025-08-29 09:45:04 - INFO - Epoch 2 - Step 470200/937500 (50.15 %) - Loss: 0.01041 - LR: 4.38e-04 - Time: 0h 12m 30s
+2025-08-29 09:46:45 - INFO - Epoch 2 - Step 470400/937500 (50.18 %) - Loss: 0.01570 - LR: 4.38e-04 - Time: 0h 14m 11s
+2025-08-29 09:48:26 - INFO - Epoch 2 - Step 470600/937500 (50.2 %) - Loss: 0.01198 - LR: 4.38e-04 - Time: 0h 15m 52s
+2025-08-29 09:50:10 - INFO - Epoch 2 - Step 470800/937500 (50.22 %) - Loss: 0.00728 - LR: 4.37e-04 - Time: 0h 17m 36s
+2025-08-29 09:51:53 - INFO - Epoch 2 - Step 471000/937500 (50.24 %) - Loss: 0.01243 - LR: 4.37e-04 - Time: 0h 19m 18s
+2025-08-29 09:53:36 - INFO - Epoch 2 - Step 471200/937500 (50.26 %) - Loss: 0.01081 - LR: 4.37e-04 - Time: 0h 21m 2s
+2025-08-29 09:55:19 - INFO - Epoch 2 - Step 471400/937500 (50.28 %) - Loss: 0.01041 - LR: 4.36e-04 - Time: 0h 22m 45s
+2025-08-29 09:57:03 - INFO - Epoch 2 - Step 471600/937500 (50.3 %) - Loss: 0.01107 - LR: 4.36e-04 - Time: 0h 24m 29s
+2025-08-29 09:58:46 - INFO - Epoch 2 - Step 471800/937500 (50.33 %) - Loss: 0.01304 - LR: 4.36e-04 - Time: 0h 26m 12s
+2025-08-29 10:00:29 - INFO - Epoch 2 - Step 472000/937500 (50.35 %) - Loss: 0.01072 - LR: 4.36e-04 - Time: 0h 27m 55s
+2025-08-29 10:02:14 - INFO - Epoch 2 - Step 472200/937500 (50.37 %) - Loss: 0.01204 - LR: 4.35e-04 - Time: 0h 29m 40s
+2025-08-29 10:03:58 - INFO - Epoch 2 - Step 472400/937500 (50.39 %) - Loss: 0.00422 - LR: 4.35e-04 - Time: 0h 31m 24s
+2025-08-29 10:05:42 - INFO - Epoch 2 - Step 472600/937500 (50.41 %) - Loss: 0.01041 - LR: 4.35e-04 - Time: 0h 33m 8s
+2025-08-29 10:07:25 - INFO - Epoch 2 - Step 472800/937500 (50.43 %) - Loss: 0.01133 - LR: 4.35e-04 - Time: 0h 34m 51s
+2025-08-29 10:09:08 - INFO - Epoch 2 - Step 473000/937500 (50.45 %) - Loss: 0.01140 - LR: 4.34e-04 - Time: 0h 36m 34s
+2025-08-29 10:10:51 - INFO - Epoch 2 - Step 473200/937500 (50.47 %) - Loss: 0.00768 - LR: 4.34e-04 - Time: 0h 38m 17s
+2025-08-29 10:12:35 - INFO - Epoch 2 - Step 473400/937500 (50.5 %) - Loss: 0.01398 - LR: 4.34e-04 - Time: 0h 40m 1s
+2025-08-29 10:14:19 - INFO - Epoch 2 - Step 473600/937500 (50.52 %) - Loss: 0.00946 - LR: 4.34e-04 - Time: 0h 41m 45s
+2025-08-29 10:16:03 - INFO - Epoch 2 - Step 473800/937500 (50.54 %) - Loss: 0.01237 - LR: 4.33e-04 - Time: 0h 43m 29s
+2025-08-29 10:17:47 - INFO - Epoch 2 - Step 474000/937500 (50.56 %) - Loss: 0.00902 - LR: 4.33e-04 - Time: 0h 45m 13s
+2025-08-29 10:19:31 - INFO - Epoch 2 - Step 474200/937500 (50.58 %) - Loss: 0.01149 - LR: 4.33e-04 - Time: 0h 46m 57s
+2025-08-29 10:21:16 - INFO - Epoch 2 - Step 474400/937500 (50.6 %) - Loss: 0.01221 - LR: 4.32e-04 - Time: 0h 48m 42s
+2025-08-29 10:22:59 - INFO - Epoch 2 - Step 474600/937500 (50.62 %) - Loss: 0.00720 - LR: 4.32e-04 - Time: 0h 50m 25s
+2025-08-29 10:24:43 - INFO - Epoch 2 - Step 474800/937500 (50.65 %) - Loss: 0.01119 - LR: 4.32e-04 - Time: 0h 52m 9s
+2025-08-29 10:26:28 - INFO - Epoch 2 - Step 475000/937500 (50.67 %) - Loss: 0.01529 - LR: 4.32e-04 - Time: 0h 53m 54s
+2025-08-29 10:28:13 - INFO - Epoch 2 - Step 475200/937500 (50.69 %) - Loss: 0.01519 - LR: 4.31e-04 - Time: 0h 55m 39s
+2025-08-29 10:29:58 - INFO - Epoch 2 - Step 475400/937500 (50.71 %) - Loss: 0.01210 - LR: 4.31e-04 - Time: 0h 57m 24s
+2025-08-29 10:31:43 - INFO - Epoch 2 - Step 475600/937500 (50.73 %) - Loss: 0.01344 - LR: 4.31e-04 - Time: 0h 59m 9s
+2025-08-29 10:33:29 - INFO - Epoch 2 - Step 475800/937500 (50.75 %) - Loss: 0.01210 - LR: 4.31e-04 - Time: 1h 0m 55s
+2025-08-29 10:35:14 - INFO - Epoch 2 - Step 476000/937500 (50.77 %) - Loss: 0.00682 - LR: 4.30e-04 - Time: 1h 2m 40s
+2025-08-29 10:36:59 - INFO - Epoch 2 - Step 476200/937500 (50.79 %) - Loss: 0.00817 - LR: 4.30e-04 - Time: 1h 4m 25s
+2025-08-29 10:38:44 - INFO - Epoch 2 - Step 476400/937500 (50.82 %) - Loss: 0.00981 - LR: 4.30e-04 - Time: 1h 6m 10s
+2025-08-29 10:40:28 - INFO - Epoch 2 - Step 476600/937500 (50.84 %) - Loss: 0.01287 - LR: 4.29e-04 - Time: 1h 7m 54s
+2025-08-29 10:42:12 - INFO - Epoch 2 - Step 476800/937500 (50.86 %) - Loss: 0.01183 - LR: 4.29e-04 - Time: 1h 9m 38s
+2025-08-29 10:43:55 - INFO - Epoch 2 - Step 477000/937500 (50.88 %) - Loss: 0.00625 - LR: 4.29e-04 - Time: 1h 11m 21s
+2025-08-29 10:45:41 - INFO - Epoch 2 - Step 477200/937500 (50.9 %) - Loss: 0.01166 - LR: 4.29e-04 - Time: 1h 13m 7s
+2025-08-29 10:47:24 - INFO - Epoch 2 - Step 477400/937500 (50.92 %) - Loss: 0.00900 - LR: 4.28e-04 - Time: 1h 14m 50s
+2025-08-29 10:49:10 - INFO - Epoch 2 - Step 477600/937500 (50.94 %) - Loss: 0.01144 - LR: 4.28e-04 - Time: 1h 16m 36s
+2025-08-29 10:50:54 - INFO - Epoch 2 - Step 477800/937500 (50.97 %) - Loss: 0.01155 - LR: 4.28e-04 - Time: 1h 18m 20s
+2025-08-29 10:52:39 - INFO - Epoch 2 - Step 478000/937500 (50.99 %) - Loss: 0.01023 - LR: 4.28e-04 - Time: 1h 20m 5s
+2025-08-29 10:54:22 - INFO - Epoch 2 - Step 478200/937500 (51.01 %) - Loss: 0.01315 - LR: 4.27e-04 - Time: 1h 21m 48s
